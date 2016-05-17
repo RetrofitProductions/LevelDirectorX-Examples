@@ -317,11 +317,7 @@ function LD_Helper:createObjectFromAsset(assetName, assets, x, y, xScale, yScale
 			
 			spriteSheet = self:getSpriteSheet(assetName, assets)
 			
-			if (asset.sequenceData == nil) then
-				asset.sequenceData = {}
-			end
 			if self._DEBUG then print (assetName .. " sequence count " .. #asset.sequenceData, asset.sequenceData) end
-			
 			if (#asset.sequenceData == 0) then
 				obj = display.newImage( spriteSheet , asset.frame)
 			else
@@ -336,6 +332,7 @@ function LD_Helper:createObjectFromAsset(assetName, assets, x, y, xScale, yScale
 					end				
 				end			
 			end
+
             obj.currentFrame = asset.frame
 			
 			obj.xScale = xScale
@@ -373,11 +370,8 @@ function LD_Helper:addObject(parentGroup, objView)
 		obj.view = objView
 		
 		obj.name = objView.name or ''
-		obj.view.name = objView.name or ''
 		obj.class = objView.class or ''
-		obj.view.class = objView.class or ''
 		obj.layerName = parentGroup.name
-		obj.view.layerName = parentGroup.name
 		obj.markX, obj.markY = 0,0
 		obj.ldType = "External"
 			
@@ -426,12 +420,9 @@ function LD_Helper:createObject(parentGroup, objProps, assets)
 	
 	objProps.alpha = objProps.alpha or 1.0
 	objProps.blendMode = objProps.blendMode or 'normal'
-	if objProps.isVisible == nil then 
-		objProps.isVisible = true 
-	end
+	objProps.isVisible = objProps.isVisible or true
 	objProps.enableDrag = objProps.enableDrag or false
 	objProps.rotation = objProps.rotation or 0
-	objProps.class = objProps.class or ''
 	
 	if (objProps.assetName ~= nil and objProps.objType == nil) then
 		objProps.objType = 'LDImage'
@@ -780,6 +771,18 @@ function LD_Helper:createObject(parentGroup, objProps, assets)
 					end
 				end
 
+				-- if (objProps.physics.isEnabled) then
+					-- objProps.physics.shapes[i] = {
+							-- density = objProps.physics.shapes[1].density,
+							-- friction = objProps.physics.shapes[1].friction,
+							-- bounce = objProps.physics.shapes[1].bounce,
+							-- shape = {x,y,x1,y1},
+							-- categoryBits = objProps.physics.shapes[1].categoryBits,
+							-- maskBits  = objProps.physics.shapes[1].categoryBits,
+							-- groupIndex = objProps.physics.shapes[1].groupIndex
+							-- }
+				-- end
+				
 				if (objProps.physics.isEnabled) then
 					self:applyPhysics(obj.view, objProps.physics, 1, 1)
 				end
@@ -834,7 +837,7 @@ function LD_Helper:createObject(parentGroup, objProps, assets)
 			end
 		end
 	-----------------------------------------------------
-	elseif (objProps.objType == 'LDMarker') then
+	elseif (objProps.objType == 'LDCamera') then
 	-----------------------------------------------------
 		obj = {}
 		obj.view = nil 
@@ -1100,7 +1103,6 @@ function LD_Helper:createObject(parentGroup, objProps, assets)
 			
 			if (obj.view.joint) then
 				obj.view.joint.motorSpeed = (jt.motorSpeed or 0)
-				obj.view.joint.maxMotorTorque = (jt.maxMotorTorque or 0)				
 				obj.view.joint.isLimitEnabled = jt.limitEnabled or false
 				obj.view.joint.isMotorEnabled = jt.motorEnabled or false
 				if (jt.limit1 and jt.limit2 and jt.limitEnabled) then 
@@ -1132,7 +1134,6 @@ function LD_Helper:createObject(parentGroup, objProps, assets)
 			obj.view.name = obj.name
 		
 			obj.view.class = obj.class -- duplicate so can check against collisions
-			obj.view.layerName = obj.layerName -- duplicate so can use at view level
 		
 			if (objProps.objType ~= 'LDJoint') then
 				if (objProps.isVisible == nil) then
@@ -1284,7 +1285,7 @@ function LD_Helper:createObject(parentGroup, objProps, assets)
 					
 					if (pathCompleted)then
 						--global notification
-						local pathEvent = { name=instance.nPathEnded, object = obj } 
+						local pathEvent = { name=LD_Helper:instance().nPathEnded, object = obj } 
 						Runtime:dispatchEvent(pathEvent)
 					end
 				end
@@ -1480,7 +1481,7 @@ function LD_Helper:createObject(parentGroup, objProps, assets)
 		end
 		
 	end
-	
+		
 	return obj
 end -- createObject 
 
@@ -1507,7 +1508,7 @@ function LD_Helper:limitsHelper( level, layer, obj, dx, dy )
 			wrap = true			
 		elseif (dx < 0 and obj.view.x > 0) and (obj.view.x - contentSize.width ) >= (self.contentWidth * (layer.pages.right -1)) then
 			--wrap right to left
-			local difX = (obj.view.x - (contentSize.width )) - (self.contentWidth  * (layer.pages.right -1))
+			local difX = (obj.view.x - (contentSize.width )) - (LD_Helper:instance().contentWidth  * (layer.pages.right -1))
 			obj.view.x = -(self.contentWidth - contentSize.width)  + difX
 			wrap = true
 		end

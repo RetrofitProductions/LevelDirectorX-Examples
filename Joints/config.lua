@@ -1,8 +1,8 @@
 application = {
 	content = {
-		width = 640,
-		height = 960, 
-		scale = "zoomStretch",
+		-- width = 800,
+		-- height = 1280, 
+		-- scale = "LetterBox",
 		fps = 60,
 		
 		--[[
@@ -14,7 +14,8 @@ application = {
 	LevelDirectorSettings = 
 	{
 		imagesSubFolder = "images",
-		levelsSubFolder = "levels",
+		levelsSubFolder = nil,
+		viewGroup = nil,
 	}
  
 }

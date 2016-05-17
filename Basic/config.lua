@@ -15,6 +15,7 @@ application = {
 	{
 		imagesSubFolder = "images",
 		levelsSubFolder = "levels",
+		viewGroup = nil,
 	}
  
 }

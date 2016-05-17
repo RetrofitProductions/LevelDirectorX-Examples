@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project lastOpen="Level01.ldx" exportTemplate="Corona_templateX.lua" exportFolder="levels">
+<project lastOpen="Level01.ldx" exportTemplate="Corona_template.lua" exportFolder="levels">
  <level name="Level01" fileName="Level01.ldx" open="1" scale="1" scrollX="1228" scrollY="0" layer="2"/>
  <properties>
   <property name="Star" value="Star"/>

@@ -51,6 +51,7 @@ function LD_Loader:new(viewGroup)
 		self.LD_Helper.imgSubFolder = application.LevelDirectorSettings.imagesSubFolder
 		self.LD_Helper.imgSubFolder = self.LD_Helper.imgSubFolder .. "/"
 	end
+	
 	-- return instance
 	return self
 	
@@ -59,7 +60,6 @@ end -- loadLevel
 -------------------------------------------------
 function LD_Loader:loadLevel(levelName)
 -------------------------------------------------
-	-- load the level
 	self.LD_Helper.levelName = levelName
 	-- load and create level instance
 	self.level = require(self.levelsFolder .. levelName):createLevel(self.LD_Helper)
@@ -73,21 +73,18 @@ end -- loadLevel
 ----------------------------------------------------
 function LD_Loader:addObject(layerName, obj)
 ----------------------------------------------------
-	-- add a preexisting display object to the level/layer 
 	return self.LD_Helper:addObject(self.level.layers[layerName], obj)
 end -- addObject
 
 ----------------------------------------------------
 function LD_Loader:createObject(layerName, objProps)
 ----------------------------------------------------
-	-- create a new LD object
-	return self.LD_Helper:createObject(self.level.layers[layerName], objProps,self.level.assets)
+	return self.LD_Helper:createObject(self.level.layers[layerName], objProps,self.assets)
 end -- createObject
 
 --------------------------------------------------------
 function LD_Loader:getLayer(layerName)
 --------------------------------------------------------
-	-- obtain reference to a LD layer object
 	local layer = self.level.layers[layerName]
 	
 	return layer
@@ -97,8 +94,8 @@ end -- getLayer
 ---------------------------------------------
 function LD_Loader:getObject(objectName)
 ---------------------------------------------
-	-- obtain reference to a LD object - searches all layers
-
+	-- searches all layers
+	
 	local obj = nil
 	for i = 1, (#self.level.layers) do
 		for k, v in pairs (self.level.layers[i].objects) do
@@ -114,8 +111,6 @@ end -- getObject
 --------------------------------------------------------
 function LD_Loader:getLayerObject(layerName,objectName)
 --------------------------------------------------------
-	-- obtain reference to a LD object on a certain layer
-	
 	local obj = nil
 	for k, v in pairs (self.level.layers[layerName].objects) do
 		if objectName == v.name then
@@ -131,7 +126,6 @@ end -- getLayerObject
 --------------------------------------------------------
 function LD_Loader:setLayerVisible(layerName,isVisible)
 --------------------------------------------------------
-	-- hide/show a layer
 	for k, v in pairs (self.level.layers[layerName].objects) do
 		v.view.isVisible = isVisible
 	end
@@ -158,12 +152,11 @@ function LD_Loader:initLevel()
 			end
 		end
 	end
-end --initLevel
+end
 
-----------------------------------------------------------
+----------------------------------------------
 function LD_Loader:objectsWithClass(className)
-----------------------------------------------------------
-	-- obtain a table of objects that match the class name 
+----------------------------------------------
 	local objects = {}
 	for i = 1, (#self.level.layers) do
 		for k, v in pairs (self.level.layers[i].objects) do
@@ -175,10 +168,9 @@ function LD_Loader:objectsWithClass(className)
 	return objects
 end -- objectsWithClass
 
------------------------------------------------------------------------------
+-------------------------------------------------------------------
 function LD_Loader:layerObjectsWithClass(layerName, className)
------------------------------------------------------------------------------ 
-	-- obtain a table of objects that match the class name on the given layer 
+-------------------------------------------------------------------
 	local layerObjects = {}
 	for k, v in pairs (self.level.layers[layerName].objects) do
 		if className == v.class then
@@ -186,23 +178,21 @@ function LD_Loader:layerObjectsWithClass(layerName, className)
   		end
 	end
 	return layerObjects
-end -- layerObjectsWithClass
+end -- objectsWithClass
 
 -------------------------------------------------------------------
 function LD_Loader:layerObjects(layerName)
 -------------------------------------------------------------------
-	-- obtain a table of objects for a given layer 
 	local layerObjects = {}
 	for k, v in pairs (self.level.layers[layerName].objects) do
 		layerObjects[#layerObjects+1] = v
 	end
 	return layerObjects
-end -- layerObjects
+end -- objectsWithClass
 
 -------------------------------------------------------------------
 function LD_Loader:getAllObjects()
 -------------------------------------------------------------------
-	-- obtain a table of all objects 
 	local layerObjects = {}
 	
 	for i = 1, (#self.level.layers) do
@@ -212,12 +202,11 @@ function LD_Loader:getAllObjects()
 	end
 	
 	return layerObjects
-end -- getAllObjects
+end -- objectsWithClass
 
 -------------------------------------------------------------------
 function LD_Loader:removeLayerObject(layerName,objectName)
 -------------------------------------------------------------------
-	-- remove an object for a given layer and object name 
 	for k, v in pairs (self.level.layers[layerName].objects) do
 		if objectName == v.name then
 			table.remove(self.level.layers[layerName].objects,k)
@@ -229,16 +218,8 @@ function LD_Loader:removeLayerObject(layerName,objectName)
 end -- removeLayerObject
 
 -------------------------------------------------------------------
-function LD_Loader:removeObject(object)
--------------------------------------------------------------------
-	-- remove an object from LD 
-	self:removeLayerObject(object.layerName, object.name)
-end -- removeObject
-
--------------------------------------------------------------------
 function LD_Loader:removeLayerObjectsWithClass(layerName,className)
 -------------------------------------------------------------------
-	-- remove all objects from a layer for a given class name
 	for k, v in pairs (self.level.layers[layerName].objects) do
 		if className == v.class then
 			table.remove(self.level.layers[layerName].objects,k)
@@ -252,7 +233,6 @@ end -- removeLayerObjectsWithClass
 ----------------------------------------------------
 function LD_Loader:removeObjectsWithClass(className)
 ----------------------------------------------------
-	-- remove all objects for a given class name
 	for i = 1, (#self.level.layers) do
 		for k, v in pairs (self.level.layers[i].objects) do
 			if className == v.class then
@@ -272,10 +252,10 @@ function LD_Loader:addEventListenerToAllObjects(eventName, listener)
 	self.LD_Helper.eventHandlers[eventName] = listener
 end -- addEventListenerToAllObjects
 
------------------------------------------------------------
+--------------------------------------------------------------------
 function LD_Loader:cullingEngine()
------------------------------------------------------------
-	-- work in progress
+--------------------------------------------------------------------
+	-- searches all layers
 	
 	local obj = nil
 	for i = 1, (#self.level.layers) do
@@ -288,53 +268,6 @@ function LD_Loader:cullingEngine()
 	end
 	return obj
 
-end -- cullingEngine
-
----------------------------------------------------------
-function LD_Loader:move(dx, dy)
----------------------------------------------------------
-	-- Move camera by delta x and y
-	-- All layers are moved according to their parallax speeds
-	if (self.level.parallaxEnabled == false) then 
-		print ("Warning: Parallax not enabled")
-	else
-		self.level:move(dx, dy)
-	end 
-end -- move 
-
------------------------------------------------------------------
-function LD_Loader:moveCamera(x, y)
------------------------------------------------------------------
-	-- Move current camera position to a specifc x and y position 
-	self.level:moveCamera(x, y)
-end -- moveCamera
-
------------------------------------------------------------------
-function LD_Loader:getCameraPos()
------------------------------------------------------------------
-	-- return the current camera position in a table of x and Y 
-	return self.level:getCameraPos()
-end -- getCameraPos
-
------------------------------------------------------------------
-function LD_Loader:trackEnabled(enabled)
------------------------------------------------------------------
-	-- set if tracking is enabled
-	self.level:trackEnabled(enabled)
-end -- trackEnabled
-
------------------------------------------------------------------
-function LD_Loader:setCameraFocus(obj, trackX, trackY)
------------------------------------------------------------------
-	-- set tracking object and tracking axis
-	self.level:setCameraFocus(obj, trackX, trackY)
-end -- setCameraFocus
-
-----------------------------------------------------------------------------------------
-function LD_Loader:slideCameraToPosition(x, y, slideTime, easingType, onCompleteHandler)
-----------------------------------------------------------------------------------------
-	-- slide camera to specified x,y position using an easing type
-	self.level:slideCameraToPosition(x, y, slideTime, easingType, onCompleteHandler)
 end
 
 ---------------------------------------------------------
@@ -371,7 +304,6 @@ end -- removeLevel
 ----------------------------
 function LD_Loader:cleanUp()
 ----------------------------
-	-- remove all references 
 	if (self.level) then
 		self.level:removeLevel()
 	end
